@@ -11,7 +11,8 @@ module Gmail
       @uid     = uid
       @mailbox = mailbox
       @gmail   = mailbox.instance_variable_get("@gmail") if mailbox
-      @message = Mail.new options[:message]
+      # @message = Mail.new options[:message]
+      # @message = nil
       @envelope = options[:envelope]
       @labels = options[:labels]
       @thread_id = options[:thread_id]
@@ -224,6 +225,11 @@ module Gmail
         request,part = 'BODY.PEEK[]','BODY[]' if @gmail.peek
         @gmail.conn.uid_fetch(uid, request)[0].attr[part] # RFC822
       })
+      # Mail.new(with_mailbox {
+      #   request,part = 'RFC822','RFC822'
+      #   request,part = 'BODY.PEEK[]','BODY[]' if @gmail.peek
+      #   @gmail.conn.uid_fetch(uid, request)[0].attr[part] # RFC822
+      # })
     end
     alias_method :raw_message, :message
 
