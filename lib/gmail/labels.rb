@@ -28,7 +28,8 @@ module Gmail
         @list << label
       else
         @list << label
-        conn.list("#{label.name}/", "%").each {|l| sublabels_or_label(l)}
+        sub_labels = conn.list("#{label.name}/", "%")
+        sub_labels.each {|l| sublabels_or_label(l)} unless sub_labels.nil? || sub_labels.empty?
       end
     end
     
@@ -57,6 +58,23 @@ module Gmail
     
     def inspect
       "#<Gmail::Labels#{'0x%04x' % (object_id << 1)}>"
+    end
+
+    # Localizes a specific label flag into a label name
+
+    # Accepts standard mailbox flags returned by LIST's special-use extension:
+    # :Inbox, :All, :Drafts, :Sent, :Trash, :Important, :Junk, :Flagged
+    # and their string equivalents. Capitalization agnostic.
+    def localize(label)
+      type = label.to_sym.capitalize
+      if [:All, :Drafts, :Sent, :Trash, :Important, :Junk, :Flagged].include? type
+        @mailboxes ||= connection.list("", "*")
+        @mailboxes.select {|box| box.attr.include? type }.collect(&:name).compact.uniq.first || raise(Client::UnknownMailbox)
+      elsif type == :Inbox
+        'INBOX'
+      else
+        label
+      end
     end
   end # Labels
 end # Gmail
