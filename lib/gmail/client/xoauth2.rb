@@ -1,5 +1,5 @@
 require 'gmail_xoauth'
-require 'pry'
+
 module Gmail
   module Client
     class XOAuth2 < Base
